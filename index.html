@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0"/>
+<title>KisanSathi — किसान साथी</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--g1:#5da030;--g2:#2a6018;--glt:#82c848;--gdim:rgba(80,160,40,.18);--gbdr:rgba(80,160,40,.28);--bg:#071a07;--bg2:#0c2610;--text:#c5e870;--dim:#6a8a50;--w4:rgba(255,255,255,.04);--w7:rgba(255,255,255,.07);--w9:rgba(255,255,255,.09)}
+html,body{height:100%;overflow:hidden;background:linear-gradient(160deg,var(--bg) 0%,var(--bg2) 50%,#152e08 100%);font-family:'Segoe UI','Noto Sans Devanagari','Noto Sans',Arial,sans-serif;color:var(--text)}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:rgba(80,160,40,.3);border-radius:4px}
+#app{display:flex;flex-direction:column;height:100vh;max-width:720px;margin:0 auto;padding:0 14px;position:relative;z-index:1}
+#app::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse at 15% 15%,rgba(80,150,30,.12) 0%,transparent 55%),radial-gradient(ellipse at 85% 85%,rgba(40,110,15,.16) 0%,transparent 55%)}
+header{display:flex;align-items:center;justify-content:space-between;padding:12px 0 9px;flex-shrink:0;border-bottom:1px solid rgba(80,160,40,.1);position:relative;z-index:20}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-icon{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--g1),var(--g2));display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 0 14px rgba(80,160,40,.45);flex-shrink:0}
+.logo-title{color:var(--glt);font-size:17px;font-weight:700}
+.logo-sub{color:#4e8030;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;margin-top:1px}
+.hdr-right{display:flex;gap:6px;align-items:center}
+.pill{display:flex;align-items:center;gap:4px;padding:4px 11px;border-radius:20px;border:1px solid var(--gbdr);background:var(--gdim);color:var(--glt);font-size:12px;cursor:pointer;transition:all .2s;white-space:nowrap;font-weight:500;user-select:none}
+.pill:hover{background:rgba(80,160,40,.26)}
+.pill.muted{background:rgba(255,70,70,.1);border-color:rgba(255,70,70,.3);color:#ff8888}
+.lang-wrap{position:relative}
+#lang-menu{display:none;position:absolute;right:0;top:38px;z-index:999;background:#091f09;border:1px solid var(--gbdr);border-radius:12px;padding:5px;min-width:168px;box-shadow:0 14px 50px rgba(0,0,0,.85);max-height:260px;overflow-y:auto}
+#lang-menu.open{display:block}
+#lang-menu button{display:block;width:100%;text-align:left;padding:6px 10px;border-radius:7px;border:none;background:transparent;color:#90b870;cursor:pointer;font-size:13px;font-weight:500;transition:background .12s;font-family:inherit}
+#lang-menu button:hover,#lang-menu button.active{background:var(--gdim);color:var(--glt)}
+.screen{display:none;flex-direction:column;flex:1;overflow:hidden;position:relative;z-index:1}
+.screen.active{display:flex}
+#setup{overflow-y:auto;padding-bottom:20px}
+.hero{text-align:center;padding:14px 0 10px}
+.hero-icon{font-size:44px;margin-bottom:6px;filter:drop-shadow(0 0 10px rgba(80,160,40,.4))}
+.hero h1{color:var(--text);font-size:21px;font-weight:700;margin-bottom:4px}
+.hero p{color:#528040;font-size:12px;line-height:1.5}
+
+/* SETUP BOX */
+.setup-box{background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.26);border-radius:12px;padding:14px 15px;margin-bottom:14px}
+.setup-box.done{background:rgba(80,160,40,.07);border-color:rgba(80,160,40,.26)}
+.sb-title{font-size:12px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:6px;color:#fbbf24}
+.sb-title.done{color:var(--glt)}
+.sb-row{display:flex;gap:7px}
+.sb-inp{flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(245,158,11,.3);border-radius:9px;padding:9px 12px;color:#ffe0a0;font-size:13px;outline:none;font-family:inherit;transition:border .2s}
+.sb-inp::placeholder{color:rgba(245,158,11,.35)}
+.sb-inp:focus{border-color:rgba(245,158,11,.6)}
+.sb-btn{background:rgba(245,158,11,.2);border:1px solid rgba(245,158,11,.4);border-radius:9px;padding:9px 14px;color:#fbbf24;cursor:pointer;font-size:12px;font-weight:700;white-space:nowrap;font-family:inherit;transition:all .2s}
+.sb-btn:hover{background:rgba(245,158,11,.32)}
+.sb-hint{font-size:10.5px;margin-top:7px;color:rgba(245,158,11,.55);line-height:1.5}
+.sb-hint a{color:#fbbf24;text-decoration:underline}
+.sb-ok{color:#82c848;font-size:11px;margin-top:6px;font-weight:600;display:none}
+
+.voice-box{background:var(--w4);border:1px solid var(--gbdr);border-radius:10px;padding:10px 14px;margin-bottom:13px}
+.vb-title{color:var(--glt);font-size:12px;font-weight:600;margin-bottom:5px}
+.vb-row{display:flex;gap:14px;flex-wrap:wrap}
+.vb-item{font-size:12px}
+.vb-ok{color:#7dc848}.vb-bad{color:#ff7070}
+.vb-warn{color:#ffb060;font-size:11px;margin-top:5px;line-height:1.4}
+
+.lbl{color:var(--glt);font-size:10px;letter-spacing:1.2px;text-transform:uppercase;display:block;margin-bottom:5px;margin-top:13px;font-weight:600}
+.field-inp{width:100%;padding:10px 13px;border-radius:9px;background:var(--w4);border:1px solid var(--gbdr);color:var(--text);font-size:14px;outline:none;transition:border .2s;font-family:inherit}
+.field-inp:focus{border-color:var(--glt)}
+.field-inp::placeholder{color:rgba(80,160,40,.35)}
+.crop-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:6px}
+.crop-btn{padding:9px 4px;border-radius:10px;cursor:pointer;background:var(--w4);border:1px solid rgba(80,160,40,.15);color:var(--dim);font-size:11px;font-weight:500;display:flex;flex-direction:column;align-items:center;gap:3px;transition:all .2s;font-family:inherit}
+.crop-btn .ce{font-size:20px}
+.crop-btn:hover{background:rgba(80,160,40,.1);border-color:var(--gbdr)}
+.crop-btn.sel{background:linear-gradient(135deg,rgba(80,160,40,.36),rgba(40,100,20,.36));border:2px solid var(--glt);color:var(--text)}
+.start-btn{width:100%;padding:13px;border-radius:12px;font-size:15px;font-weight:700;background:var(--w4);border:1px solid rgba(80,160,40,.15);color:#336020;cursor:not-allowed;transition:all .3s;margin-top:14px;font-family:inherit}
+.start-btn.ready{background:linear-gradient(135deg,var(--g1),var(--g2));border:none;color:#fff;cursor:pointer;box-shadow:0 4px 20px rgba(80,160,40,.28)}
+.start-btn.ready:hover{filter:brightness(1.08)}
+
+#chat{gap:0}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:7px 11px;background:var(--w4);border-radius:9px;margin-bottom:9px;border:1px solid rgba(80,160,40,.12);flex-shrink:0}
+.tb-left{display:flex;align-items:center;gap:8px}
+.tb-emoji{font-size:19px}
+.tb-name{color:var(--glt);font-size:13px;font-weight:600}
+.tb-loc{color:#3e6828;font-size:10px;margin-top:1px}
+.tb-right{display:flex;gap:5px;align-items:center}
+.tb-lang{color:#3a6020;font-size:10px;font-weight:500}
+.stop-btn{background:rgba(255,140,20,.13);border:1px solid rgba(255,140,20,.3);border-radius:7px;padding:3px 9px;color:#ffa040;cursor:pointer;font-size:11px;font-weight:600;display:none;font-family:inherit;animation:blink 1.3s infinite}
+.new-btn{background:rgba(255,60,60,.07);border:1px solid rgba(255,60,60,.18);border-radius:7px;padding:3px 9px;color:#ff9090;cursor:pointer;font-size:11px;font-family:inherit}
+#messages{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:11px;padding:4px 0 6px}
+.mrow{display:flex;align-items:flex-start;animation:msgIn .3s ease}
+.mrow.user{justify-content:flex-end}
+.av{width:28px;height:28px;border-radius:50%;min-width:28px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;margin-top:3px}
+.av.bot{background:linear-gradient(135deg,var(--g1),var(--g2));margin-right:6px}
+.av.user{background:rgba(80,160,40,.15);border:1px solid var(--gbdr);margin-left:6px}
+.bwrap{max-width:81%;position:relative;padding-bottom:6px}
+.bubble{padding:10px 13px;font-size:13.5px;line-height:1.68}
+.bubble.bot{border-radius:14px 14px 14px 3px;background:var(--w7);border:1px solid var(--w9);color:#aad870}
+.bubble.user{border-radius:14px 14px 3px 14px;background:linear-gradient(135deg,rgba(80,160,40,.28),rgba(40,100,20,.28));border:1px solid rgba(80,160,40,.36);color:var(--text)}
+.replay-btn{position:absolute;bottom:-2px;right:4px;background:rgba(80,160,40,.12);border:1px solid rgba(80,160,40,.22);border-radius:10px;padding:1px 7px;color:#5a8a30;cursor:pointer;font-size:10px;font-weight:500;font-family:inherit}
+.typing-row{display:flex;align-items:center;gap:7px;animation:msgIn .3s ease}
+.dots{display:flex;gap:4px;align-items:center;padding:10px 14px;border-radius:14px 14px 14px 3px;background:var(--w7);border:1px solid var(--w9)}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--g1);animation:bounce 1.2s infinite}
+.dot:nth-child(2){animation-delay:.2s}.dot:nth-child(3){animation-delay:.4s}
+.input-area{flex-shrink:0;padding:8px 0 12px;position:relative;z-index:5}
+.err-bar{background:rgba(220,50,10,.12);border:1px solid rgba(220,50,10,.3);border-radius:8px;padding:7px 12px;margin-bottom:7px;color:#ff9060;font-size:12px;display:none;justify-content:space-between;align-items:center;gap:8px;line-height:1.4}
+.err-bar button{background:none;border:none;color:#ff9060;cursor:pointer;font-size:16px;flex-shrink:0}
+.listen-bar{background:rgba(80,160,40,.09);border:1px dashed rgba(80,160,40,.35);border-radius:8px;padding:7px 12px;margin-bottom:7px;color:var(--glt);font-size:13px;display:none;align-items:center;gap:9px;font-style:italic}
+.lp{animation:micRing 1s infinite;display:inline-block}
+.input-row{display:flex;gap:6px;align-items:center;background:var(--w4);border-radius:13px;border:1.5px solid rgba(80,160,40,.22);padding:6px 6px 6px 14px;transition:all .3s}
+.input-row.on{border-color:rgba(80,220,40,.5);box-shadow:0 0 20px rgba(80,220,40,.1)}
+#txt{flex:1;background:transparent;border:none;outline:none;color:var(--text);font-size:14px;font-family:inherit}
+#txt::placeholder{color:rgba(80,160,40,.38)}
+.icon-btn{width:40px;height:40px;border-radius:50%;border:none;cursor:pointer;font-size:17px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .25s;font-family:inherit}
+.mic-btn{background:linear-gradient(135deg,#3a8020,#1a5010);color:#fff;box-shadow:0 2px 10px rgba(60,130,30,.35)}
+.mic-btn.on{background:linear-gradient(135deg,#c82010,#7a0800);animation:micRing 1s infinite}
+.mic-btn:disabled{background:rgba(60,60,60,.5);color:#555;cursor:not-allowed;animation:none;box-shadow:none}
+.send-btn{background:rgba(80,160,40,.08);color:#336020;cursor:not-allowed}
+.send-btn.go{background:linear-gradient(135deg,var(--g1),var(--g2));color:#fff;cursor:pointer}
+.quick-row{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}
+.qbtn{background:rgba(80,160,40,.06);border:1px solid rgba(80,160,40,.15);border-radius:20px;padding:3px 11px;color:#4e7030;cursor:pointer;font-size:11px;font-weight:500;font-family:inherit;transition:all .2s}
+.qbtn:hover{background:rgba(80,160,40,.18);color:var(--glt)}
+@keyframes bounce{0%,80%,100%{transform:scale(0)}40%{transform:scale(1)}}
+@keyframes micRing{0%{box-shadow:0 0 0 0 rgba(200,40,10,.7)}70%{box-shadow:0 0 0 14px rgba(200,40,10,0)}100%{box-shadow:0 0 0 0 rgba(200,40,10,0)}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.5}}
+@keyframes msgIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:480px){.crop-grid{grid-template-columns:repeat(3,1fr)}.hero h1{font-size:19px}.bubble{font-size:13px}}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="logo">
+      <div class="logo-icon">🌿</div>
+      <div>
+        <div class="logo-title">KisanSathi</div>
+        <div class="logo-sub" id="hdr-sub">किसान साथी • AI Voice Farm Guide</div>
+      </div>
+    </div>
+    <div class="hdr-right">
+      <button class="pill" id="voice-toggle" onclick="toggleVoice()">🔊 <span id="voice-lbl">Voice</span></button>
+      <div class="lang-wrap">
+        <button class="pill" onclick="toggleLang(event)">🌐 <span id="cur-lang">English</span> ▾</button>
+        <div id="lang-menu"></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- SETUP -->
+  <div class="screen active" id="setup">
+    <div class="hero">
+      <div class="hero-icon">🌾</div>
+      <h1 id="hero-title">Apni Fasal, Apni Awaaz</h1>
+      <p id="hero-sub">Your AI farming guide — speak or type in your language</p>
+    </div>
+
+    <!-- VOICE STATUS -->
+    <div class="voice-box">
+      <div class="vb-title" id="vs-title">🎙️ Voice Status</div>
+      <div class="vb-row">
+        <span class="vb-item" id="vs-mic">⏳ Checking…</span>
+        <span class="vb-item" id="vs-spk">⏳ Checking…</span>
+      </div>
+      <div class="vb-warn" id="vs-warn" style="display:none"></div>
+    </div>
+
+    <label class="lbl" id="lbl-loc">📍 Your Location</label>
+    <input class="field-inp" id="loc-inp" type="text" placeholder="State / District  e.g. Punjab, Ludhiana"/>
+
+    <label class="lbl" id="lbl-crop">🌱 Select Your Crop</label>
+    <div class="crop-grid" id="crop-grid"></div>
+
+    <button class="start-btn" id="start-btn" onclick="startChat()" disabled>
+      <span id="start-lbl">Please select a crop first</span>
+    </button>
+  </div>
+
+  <!-- CHAT -->
+  <div class="screen" id="chat">
+    <div class="topbar">
+      <div class="tb-left">
+        <span class="tb-emoji" id="tb-emoji"></span>
+        <div>
+          <div class="tb-name" id="tb-name"></div>
+          <div class="tb-loc" id="tb-loc"></div>
+        </div>
+      </div>
+      <div class="tb-right">
+        <button class="stop-btn" id="stop-btn" onclick="stopSpeak()">⏹ <span id="lbl-stop">Stop</span></button>
+        <span class="tb-lang" id="tb-lang"></span>
+        <button class="new-btn" onclick="resetApp()"><span id="lbl-new">✕ New</span></button>
+      </div>
+    </div>
+    <div id="messages"></div>
+    <div class="input-area">
+      <div class="err-bar" id="err-bar"><span id="err-msg"></span><button onclick="hideErr()">✕</button></div>
+      <div class="listen-bar" id="listen-bar"><span class="lp">🎙️</span><span id="live-txt"></span></div>
+      <div class="input-row" id="input-row">
+        <input id="txt" type="text" onkeydown="onKey(event)" oninput="syncSend()"/>
+        <button class="icon-btn mic-btn" id="mic-btn" onclick="toggleMic()">🎙️</button>
+        <button class="icon-btn send-btn" id="send-btn" onclick="doSend()" disabled>➤</button>
+      </div>
+      <div class="quick-row" id="quick-row"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+"use strict";
+
+const T={
+  en:{bcp:"en-IN",label:"English",hdrSub:"किसान साथी • AI Voice Farm Guide",heroTitle:"Apni Fasal, Apni Awaaz",heroSub:"Your AI farming guide — speak or type in your language",workerTitle:"⚙️ One-time Setup — Enter your Worker URL",workerHint:'Create a free proxy at <a href="https://workers.cloudflare.com" target="_blank">workers.cloudflare.com</a> using the worker.js file. Takes 2 minutes, free forever.',workerOk:"✅ Worker URL saved — AI is ready!",vsTitle:"🎙️ Voice Status",vsMicY:"✅ Mic: Ready",vsMicN:"❌ Mic: Not supported",vsSpkY:"✅ Speaker: Ready",vsSpkN:"❌ Speaker: Not supported",vsWarn:"⚠️ Use Chrome or Edge for full voice support.",lblLoc:"📍 Your Location",locPh:"State / District  e.g. Punjab, Ludhiana",lblCrop:"🌱 Select Your Crop",startReady:"🚀 Start Farming Chat",startWait:"Please select a crop first",voiceLbl:"Voice",stop:"Stop",newSess:"✕ New",listenHint:"Listening… speak now",inputPh:"Type your question…",quickQ:["Best fertilizer?","Pest control","Irrigation tips","Market price","Govt schemes"],greet:(c,l)=>`Namaste Kisaan Bhai! 🌿 I'm KisanSathi, your AI farming guide. You've selected <b>${c}</b>${l?" in <b>"+l+"</b>":""}. Ask me anything — sowing, fertilizers, pests, market prices or government schemes!`},
+  hi:{bcp:"hi-IN",label:"हिन्दी",hdrSub:"किसान साथी • AI वॉइस कृषि मार्गदर्शक",heroTitle:"अपनी फसल, अपनी आवाज़",heroSub:"अपनी फसल के बारे में बोलें या लिखें",workerTitle:"⚙️ एक बार सेटअप — Worker URL डालें",workerHint:'<a href="https://workers.cloudflare.com" target="_blank">workers.cloudflare.com</a> पर मुफ़्त proxy बनाएं। 2 मिनट, हमेशा मुफ़्त।',workerOk:"✅ Worker URL सेव — AI तैयार है!",vsTitle:"🎙️ आवाज़ की स्थिति",vsMicY:"✅ माइक: तैयार है",vsMicN:"❌ माइक: समर्थित नहीं",vsSpkY:"✅ स्पीकर: तैयार है",vsSpkN:"❌ स्पीकर: समर्थित नहीं",vsWarn:"⚠️ बेहतर आवाज़ के लिए Chrome या Edge इस्तेमाल करें।",lblLoc:"📍 आपका स्थान",locPh:"राज्य / जिला  जैसे पंजाब, लुधियाना",lblCrop:"🌱 अपनी फसल चुनें",startReady:"🚀 चैट शुरू करें",startWait:"कृपया पहले फसल चुनें",voiceLbl:"आवाज़",stop:"रोकें",newSess:"✕ नया",listenHint:"सुन रहा है… बोलिए",inputPh:"अपना सवाल यहाँ लिखें…",quickQ:["सबसे अच्छा खाद?","कीट नियंत्रण","सिंचाई सुझाव","बाजार भाव","सरकारी योजनाएँ"],greet:(c,l)=>`नमस्ते किसान भाई! 🌿 मैं किसान साथी हूँ। आपने <b>${c}</b>${l?", <b>"+l+"</b> से":""} फसल चुनी। कुछ भी पूछिए!`},
+  te:{bcp:"te-IN",label:"తెలుగు",hdrSub:"కిసాన్ సాథి • AI వాయిస్ వ్యవసాయ గైడ్",heroTitle:"మీ పంట, మీ గొంతు",heroSub:"మీ పంట గురించి మాట్లాడండి లేదా టైప్ చేయండి",workerTitle:"⚙️ ఒకసారి సెటప్ — Worker URL నమోదు చేయండి",workerHint:'<a href="https://workers.cloudflare.com" target="_blank">workers.cloudflare.com</a> లో ఉచిత proxy సృష్టించండి. 2 నిమిషాలు, ఎప్పటికీ ఉచితం.',workerOk:"✅ Worker URL సేవ్ — AI సిద్ధం!",vsTitle:"🎙️ వాయిస్ స్థితి",vsMicY:"✅ మైక్: సిద్ధంగా ఉంది",vsMicN:"❌ మైక్: మద్దతు లేదు",vsSpkY:"✅ స్పీకర్: సిద్ధంగా ఉంది",vsSpkN:"❌ స్పీకర్: మద్దతు లేదు",vsWarn:"⚠️ మెరుగైన వాయిస్ కోసం Chrome లేదా Edge వాడండి.",lblLoc:"📍 మీ స్థానం",locPh:"రాష్ట్రం / జిల్లా  ఉదా: ఆంధ్రప్రదేశ్, గుంటూరు",lblCrop:"🌱 మీ పంటను ఎంచుకోండి",startReady:"🚀 చాట్ ప్రారంభించండి",startWait:"దయచేసి పంటను ఎంచుకోండి",voiceLbl:"వాయిస్",stop:"ఆపండి",newSess:"✕ కొత్తది",listenHint:"వింటున్నాను… మాట్లాడండి",inputPh:"మీ ప్రశ్న ఇక్కడ టైప్ చేయండి…",quickQ:["మంచి ఎరువు?","పురుగు నివారణ","నీటిపారుదల","మార్కెట్ ధర","ప్రభుత్వ పథకాలు"],greet:(c,l)=>`నమస్కారం రైతు అన్నా! 🌿 నేను కిసాన్ సాథి. మీరు <b>${c}</b> పంట ఎంచుకున్నారు${l?", <b>"+l+"</b>లో":""}. ఏదైనా అడగండి!`},
+  mr:{bcp:"mr-IN",label:"मराठी",hdrSub:"किसान साथी • AI व्हॉइस शेती मार्गदर्शक",heroTitle:"आपली शेती, आपला आवाज",heroSub:"तुमच्या पिकाबद्दल बोला किंवा लिहा",workerTitle:"⚙️ एकवेळ सेटअप — Worker URL टाका",workerHint:'<a href="https://workers.cloudflare.com" target="_blank">workers.cloudflare.com</a> वर मोफत proxy तयार करा. 2 मिनिटे, कायमचे मोफत.',workerOk:"✅ Worker URL सेव्ह — AI तयार!",vsTitle:"🎙️ आवाज स्थिती",vsMicY:"✅ मायक्रोफोन: तयार",vsMicN:"❌ मायक्रोफोन: समर्थित नाही",vsSpkY:"✅ स्पीकर: तयार",vsSpkN:"❌ स्पीकर: समर्थित नाही",vsWarn:"⚠️ Chrome किंवा Edge वापरा.",lblLoc:"📍 तुमचे स्थान",locPh:"राज्य / जिल्हा  उदा: महाराष्ट्र, नाशिक",lblCrop:"🌱 तुमची पीक निवडा",startReady:"🚀 चॅट सुरू करा",startWait:"कृपया आधी पीक निवडा",voiceLbl:"आवाज",stop:"थांबवा",newSess:"✕ नवीन",listenHint:"ऐकत आहे… बोला",inputPh:"तुमचा प्रश्न इथे लिहा…",quickQ:["सर्वोत्तम खत?","कीड नियंत्रण","सिंचन सल्ला","बाजार भाव","सरकारी योजना"],greet:(c,l)=>`नमस्कार शेतकरी बंधू! 🌿 मी किसान साथी. <b>${c}</b>${l?", <b>"+l+"</b>मधून":""} पीक. काहीही विचारा!`},
+  ta:{bcp:"ta-IN",label:"தமிழ்",hdrSub:"கிசான் சாதி • AI குரல் விவசாய வழிகாட்டி",heroTitle:"உங்கள் பயிர், உங்கள் குரல்",heroSub:"உங்கள் பயிர் பற்றி பேசுங்கள் அல்லது தட்டச்சு",workerTitle:"⚙️ ஒருமுறை அமைவு — Worker URL உள்ளிடுங்கள்",workerHint:'<a href="https://workers.cloudflare.com" target="_blank">workers.cloudflare.com</a> இல் இலவச proxy உருவாக்குங்கள். 2 நிமிடம், எப்போதும் இலவசம்.',workerOk:"✅ Worker URL சேமிக்கப்பட்டது — AI தயார்!",vsTitle:"🎙️ குரல் நிலை",vsMicY:"✅ மைக்: தயார்",vsMicN:"❌ மைக்: ஆதரிக்கப்படவில்லை",vsSpkY:"✅ ஸ்பீக்கர்: தயார்",vsSpkN:"❌ ஸ்பீக்கர்: ஆதரிக்கப்படவில்லை",vsWarn:"⚠️ Chrome அல்லது Edge பயன்படுத்தவும்.",lblLoc:"📍 உங்கள் இடம்",locPh:"மாநிலம் / மாவட்டம்",lblCrop:"🌱 உங்கள் பயிரை தேர்ந்தெடுங்கள்",startReady:"🚀 அரட்டையை தொடங்கு",startWait:"முதலில் பயிரை தேர்ந்தெடுக்கவும்",voiceLbl:"குரல்",stop:"நிறுத்து",newSess:"✕ புதியது",listenHint:"கேட்கிறேன்… பேசுங்கள்",inputPh:"உங்கள் கேள்வியை தட்டச்சு செய்யுங்கள்…",quickQ:["சிறந்த உரம்?","பூச்சி கட்டுப்பாடு","நீர்ப்பாசனம்","சந்தை விலை","அரசு திட்டம்"],greet:(c,l)=>`வணக்கம் விவசாயி அண்ணா! 🌿 நான் கிசான் சாதி. <b>${c}</b>${l?", <b>"+l+"</b>இல்":""} பயிர். எதையும் கேளுங்கள்!`},
+  bn:{bcp:"bn-IN",label:"বাংলা",hdrSub:"কিষান সাথী • AI ভয়েস কৃষি গাইড",heroTitle:"আপনার ফসল, আপনার কণ্ঠ",heroSub:"আপনার ফসল সম্পর্কে বলুন বা টাইপ করুন",workerTitle:"⚙️ একবার সেটআপ — Worker URL দিন",workerHint:'<a href="https://workers.cloudflare.com" target="_blank">workers.cloudflare.com</a> এ বিনামূল্যে proxy তৈরি করুন। ২ মিনিট, সবসময় বিনামূল্যে।',workerOk:"✅ Worker URL সেভ — AI প্রস্তুত!",vsTitle:"🎙️ ভয়েস স্ট্যাটাস",vsMicY:"✅ মাইক: প্রস্তুত",vsMicN:"❌ মাইক: সমর্থিত নয়",vsSpkY:"✅ স্পিকার: প্রস্তুত",vsSpkN:"❌ স্পিকার: সমর্থিত নয়",vsWarn:"⚠️ Chrome বা Edge ব্যবহার করুন।",lblLoc:"📍 আপনার অবস্থান",locPh:"রাজ্য / জেলা",lblCrop:"🌱 আপনার ফসল বেছে নিন",startReady:"🚀 চ্যাট শুরু করুন",startWait:"প্রথমে ফসল বেছে নিন",voiceLbl:"ভয়েস",stop:"থামুন",newSess:"✕ নতুন",listenHint:"শুনছি… বলুন",inputPh:"আপনার প্রশ্ন টাইপ করুন…",quickQ:["সেরা সার?","কীটপতঙ্গ নিয়ন্ত্রণ","সেচ পরামর্শ","বাজার মূল্য","সরকারি প্রকল্প"],greet:(c,l)=>`নমস্কার কিষান ভাই! 🌿 আমি কিষান সাথী। <b>${c}</b>${l?", <b>"+l+"</b>তে":""} চাষ। যেকোনো প্রশ্ন করুন!`},
+  gu:{bcp:"gu-IN",label:"ગુજરાતી",hdrSub:"કિસાન સાથી • AI વૉઇસ ખેતી માર્ગદર્શક",heroTitle:"તમારો પાક, તમારો અવાજ",heroSub:"તમારા પાક વિશે બોલો અથવા ટાઇપ કરો",workerTitle:"⚙️ એકવાર સેટઅપ — Worker URL નાખો",workerHint:'<a href="https://workers.cloudflare.com" target="_blank">workers.cloudflare.com</a> પર મફત proxy બનાવો. ૨ મિનિટ, હંમેશા મફત.',workerOk:"✅ Worker URL સેવ — AI તૈયાર!",vsTitle:"🎙️ વૉઇસ સ્થિતિ",vsMicY:"✅ માઇક: તૈયાર",vsMicN:"❌ માઇક: સમર્થિત નથી",vsSpkY:"✅ સ્પીકર: તૈયાર",vsSpkN:"❌ સ્પીકર: સમર્થિત નથી",vsWarn:"⚠️ Chrome અથવા Edge વાપરો.",lblLoc:"📍 તમારું સ્થળ",locPh:"રાજ્ય / જિલ્લો",lblCrop:"🌱 તમારો પાક પસંદ કરો",startReady:"🚀 ચેટ શરૂ કરો",startWait:"પહેલા પાક પસંદ કરો",voiceLbl:"વૉઇસ",stop:"રોકો",newSess:"✕ નવું",listenHint:"સાંભળી રહ્યો… બોલો",inputPh:"તમારો પ્રશ્ન ટાઇપ કરો…",quickQ:["શ્રેષ્ઠ ખાતર?","જીવાત નિયંત્રણ","સિંચાઈ ટિપ્સ","બજાર ભાવ","સરકારી યોજના"],greet:(c,l)=>`નમસ્તે ખેડૂત ભાઈ! 🌿 હું કિસાન સાથી. <b>${c}</b>${l?", <b>"+l+"</b>માં":""} પાક. કંઈ પણ પૂછો!`},
+  kn:{bcp:"kn-IN",label:"ಕನ್ನಡ",hdrSub:"ಕಿಸಾನ್ ಸಾಥಿ • AI ವಾಯ್ಸ್ ಕೃಷಿ ಮಾರ್ಗದರ್ಶಕ",heroTitle:"ನಿಮ್ಮ ಬೆಳೆ, ನಿಮ್ಮ ಧ್ವನಿ",heroSub:"ನಿಮ್ಮ ಬೆಳೆಯ ಬಗ್ಗೆ ಮಾತನಾಡಿ ಅಥವಾ ಟೈಪ್ ಮಾಡಿ",workerTitle:"⚙️ ಒಂದು ಬಾರಿ ಸೆಟಪ್ — Worker URL ನಮೂದಿಸಿ",workerHint:'<a href="https://workers.cloudflare.com" target="_blank">workers.cloudflare.com</a> ನಲ್ಲಿ ಉಚಿತ proxy ರಚಿಸಿ. ೨ ನಿಮಿಷ, ಯಾವಾಗಲೂ ಉಚಿತ.',workerOk:"✅ Worker URL ಸೇವ್ — AI ಸಿದ್ಧ!",vsTitle:"🎙️ ವಾಯ್ಸ್ ಸ್ಥಿತಿ",vsMicY:"✅ ಮೈಕ್: ಸಿದ್ಧ",vsMicN:"❌ ಮೈಕ್: ಬೆಂಬಲಿಸುವುದಿಲ್ಲ",vsSpkY:"✅ ಸ್ಪೀಕರ್: ಸಿದ್ಧ",vsSpkN:"❌ ಸ್ಪೀಕರ್: ಬೆಂಬಲಿಸುವುದಿಲ್ಲ",vsWarn:"⚠️ Chrome ಅಥವಾ Edge ಬಳಸಿ.",lblLoc:"📍 ನಿಮ್ಮ ಸ್ಥಳ",locPh:"ರಾಜ್ಯ / ಜಿಲ್ಲೆ",lblCrop:"🌱 ನಿಮ್ಮ ಬೆಳೆ ಆಯ್ಕೆ ಮಾಡಿ",startReady:"🚀 ಚಾಟ್ ಪ್ರಾರಂಭಿಸಿ",startWait:"ದಯವಿಟ್ಟು ಬೆಳೆ ಆಯ್ಕೆ ಮಾಡಿ",voiceLbl:"ಧ್ವನಿ",stop:"ನಿಲ್ಲಿಸಿ",newSess:"✕ ಹೊಸದು",listenHint:"ಕೇಳುತ್ತಿದ್ದೇನೆ… ಮಾತನಾಡಿ",inputPh:"ನಿಮ್ಮ ಪ್ರಶ್ನೆ ಟೈಪ್ ಮಾಡಿ…",quickQ:["ಉತ್ತಮ ಗೊಬ್ಬರ?","ಕೀಟ ನಿಯಂತ್ರಣ","ನೀರಾವರಿ ಸಲಹೆ","ಮಾರುಕಟ್ಟೆ ಬೆಲೆ","ಸರ್ಕಾರಿ ಯೋಜನೆ"],greet:(c,l)=>`ನಮಸ್ಕಾರ ರೈತ ಅಣ್ಣಾ! 🌿 ನಾನು ಕಿಸಾನ್ ಸಾಥಿ. <b>${c}</b>${l?", <b>"+l+"</b>ದಲ್ಲಿ":""} ಬೆಳೆ. ಏನಾದರೂ ಕೇಳಿ!`},
+  ml:{bcp:"ml-IN",label:"മലയാളം",hdrSub:"കിസാൻ സാഥി • AI വോയ്‌സ് കൃഷി ഗൈഡ്",heroTitle:"നിങ്ങളുടെ വിള, നിങ്ങളുടെ ശബ്ദം",heroSub:"നിങ്ങളുടെ വിളയെ കുറിച്ച് സംസാരിക്കുക",workerTitle:"⚙️ ഒരിക്കൽ സജ്ജീകരണം — Worker URL നൽകുക",workerHint:'<a href="https://workers.cloudflare.com" target="_blank">workers.cloudflare.com</a> ൽ ഉചിത proxy സൃഷ്ടിക്കുക. ൨ മിനിറ്റ്, എപ്പോഴും സൗജന്യം.',workerOk:"✅ Worker URL സേവ് — AI തയ്യാർ!",vsTitle:"🎙️ വോയ്‌സ് സ്ഥിതി",vsMicY:"✅ മൈക്ക്: തയ്യാർ",vsMicN:"❌ മൈക്ക്: പിന്തുണയില്ല",vsSpkY:"✅ സ്പീക്കർ: തയ്യാർ",vsSpkN:"❌ സ്പീക്കർ: പിന്തുണയില്ല",vsWarn:"⚠️ Chrome അല്ലെങ്കിൽ Edge ഉപയോഗിക്കുക.",lblLoc:"📍 നിങ്ങളുടെ സ്ഥലം",locPh:"സംസ്ഥാനം / ജില്ല",lblCrop:"🌱 നിങ്ങളുടെ വിള തിരഞ്ഞെടുക്കുക",startReady:"🚀 ചാറ്റ് ആരംഭിക്കുക",startWait:"ദയവായി വിള തിരഞ്ഞെടുക്കുക",voiceLbl:"ശബ്ദം",stop:"നിർത്തുക",newSess:"✕ പുതിയത്",listenHint:"കേൾക്കുന്നു… സംസാരിക്കുക",inputPh:"ചോദ്യം ടൈപ്പ് ചെയ്യുക…",quickQ:["മികച്ച വളം?","കീടനിയന്ത്രണം","ജലസേചനം","വിപണി വില","സർക്കാർ പദ്ധതി"],greet:(c,l)=>`നമസ്കാരം കർഷക ചേട്ടാ! 🌿 ഞാൻ കിസാൻ സാഥി. <b>${c}</b>${l?", <b>"+l+"</b>ൽ":""} വിള. എന്തും ചോദിക്കാം!`},
+  pa:{bcp:"pa-IN",label:"ਪੰਜਾਬੀ",hdrSub:"ਕਿਸਾਨ ਸਾਥੀ • AI ਆਵਾਜ਼ ਖੇਤੀ ਮਾਰਗਦਰਸ਼ਕ",heroTitle:"ਆਪਣੀ ਫ਼ਸਲ, ਆਪਣੀ ਆਵਾਜ਼",heroSub:"ਆਪਣੀ ਫ਼ਸਲ ਬਾਰੇ ਬੋਲੋ ਜਾਂ ਲਿਖੋ",workerTitle:"⚙️ ਇੱਕ ਵਾਰ ਸੈੱਟਅੱਪ — Worker URL ਦਰਜ ਕਰੋ",workerHint:'<a href="https://workers.cloudflare.com" target="_blank">workers.cloudflare.com</a> ਤੇ ਮੁਫ਼ਤ proxy ਬਣਾਓ। ੨ ਮਿੰਟ, ਹਮੇਸ਼ਾ ਮੁਫ਼ਤ।',workerOk:"✅ Worker URL ਸੇਵ — AI ਤਿਆਰ!",vsTitle:"🎙️ ਆਵਾਜ਼ ਸਥਿਤੀ",vsMicY:"✅ ਮਾਈਕ: ਤਿਆਰ",vsMicN:"❌ ਮਾਈਕ: ਸਮਰਥਿਤ ਨਹੀਂ",vsSpkY:"✅ ਸਪੀਕਰ: ਤਿਆਰ",vsSpkN:"❌ ਸਪੀਕਰ: ਸਮਰਥਿਤ ਨਹੀਂ",vsWarn:"⚠️ Chrome ਜਾਂ Edge ਵਰਤੋ।",lblLoc:"📍 ਤੁਹਾਡਾ ਸਥਾਨ",locPh:"ਰਾਜ / ਜ਼ਿਲ੍ਹਾ",lblCrop:"🌱 ਆਪਣੀ ਫ਼ਸਲ ਚੁਣੋ",startReady:"🚀 ਚੈਟ ਸ਼ੁਰੂ ਕਰੋ",startWait:"ਪਹਿਲਾਂ ਫ਼ਸਲ ਚੁਣੋ",voiceLbl:"ਆਵਾਜ਼",stop:"ਰੋਕੋ",newSess:"✕ ਨਵਾਂ",listenHint:"ਸੁਣ ਰਿਹਾ ਹਾਂ… ਬੋਲੋ",inputPh:"ਆਪਣਾ ਸਵਾਲ ਲਿਖੋ…",quickQ:["ਸਭ ਤੋਂ ਚੰਗੀ ਖਾਦ?","ਕੀਟ ਨਿਯੰਤਰਣ","ਸਿੰਚਾਈ ਸੁਝਾਅ","ਮੰਡੀ ਭਾਅ","ਸਰਕਾਰੀ ਸਕੀਮ"],greet:(c,l)=>`ਸਤਿ ਸ੍ਰੀ ਅਕਾਲ ਕਿਸਾਨ ਵੀਰੇ! 🌿 ਮੈਂ ਕਿਸਾਨ ਸਾਥੀ ਹਾਂ। <b>${c}</b>${l?", <b>"+l+"</b> ਤੋਂ":""} ਫ਼ਸਲ। ਕੁਝ ਵੀ ਪੁੱਛੋ!`},
+  or:{bcp:"or-IN",label:"ଓଡ଼ିଆ",hdrSub:"କିସାନ ସାଥୀ • AI ଭଏସ ଚାଷ ଗାଇଡ",heroTitle:"ଆପଣଙ୍କ ଫସଲ, ଆପଣଙ୍କ ସ୍ୱର",heroSub:"ଆପଣଙ୍କ ଫସଲ ବିଷୟରେ କଥା କହନ୍ତୁ",workerTitle:"⚙️ ଏକ ଥର ସେଟଅପ — Worker URL ଦିଅନ୍ତୁ",workerHint:'<a href="https://workers.cloudflare.com" target="_blank">workers.cloudflare.com</a> ରେ ମାଗଣା proxy ତିଆରି କରନ୍ତୁ। ୨ ମିନିଟ, ସର୍ବଦା ମାଗଣା।',workerOk:"✅ Worker URL ସେଭ — AI ପ୍ରସ୍ତୁତ!",vsTitle:"🎙️ ଭଏସ ସ୍ଥିତି",vsMicY:"✅ ମାଇକ: ପ୍ରସ୍ତୁତ",vsMicN:"❌ ମାଇକ: ସମର୍ଥିତ ନୁହେଁ",vsSpkY:"✅ ସ୍ପୀକର: ପ୍ରସ୍ତୁତ",vsSpkN:"❌ ସ୍ପୀକର: ସମର୍ଥିତ ନୁହେଁ",vsWarn:"⚠️ Chrome ବା Edge ବ୍ୟବହାର କରନ୍ତୁ।",lblLoc:"📍 ଆପଣଙ୍କ ସ୍ଥାନ",locPh:"ରାଜ୍ୟ / ଜିଲ୍ଲା",lblCrop:"🌱 ଆପଣଙ୍କ ଫସଲ ବାଛନ୍ତୁ",startReady:"🚀 ଚାଟ ଆରମ୍ଭ",startWait:"ଦୟାକରି ଫସଲ ବାଛନ୍ତୁ",voiceLbl:"ଭଏସ",stop:"ବନ୍ଦ",newSess:"✕ ନୂଆ",listenHint:"ଶୁଣୁଛି… ବୋଲନ୍ତୁ",inputPh:"ଆପଣଙ୍କ ପ୍ରଶ୍ନ ଟାଇପ କରନ୍ତୁ…",quickQ:["ସର୍ବୋତ୍ତମ ସାର?","କୀଟ ନିୟନ୍ତ୍ରଣ","ଜଳସେଚନ","ବଜାର ମୂଲ୍ୟ","ସରକାରୀ ଯୋଜନା"],greet:(c,l)=>`ନମସ୍କାର ଚାଷୀ ଭାଇ! 🌿 ମୁଁ କିସାନ ସାଥୀ। <b>${c}</b>${l?", <b>"+l+"</b>ରେ":""} ଫସଲ। ଯାହା ଇଚ୍ଛା ପଚାରନ୍ତୁ!`},
+  as:{bcp:"as-IN",label:"অসমীয়া",hdrSub:"কিছান সাথী • AI ভইচ কৃষি গাইড",heroTitle:"আপোনাৰ শস্য, আপোনাৰ মাত",heroSub:"আপোনাৰ শস্যৰ বিষয়ে কথা কওক",workerTitle:"⚙️ এবাৰৰ চেটআপ — Worker URL দিয়ক",workerHint:'<a href="https://workers.cloudflare.com" target="_blank">workers.cloudflare.com</a> ত বিনামূলীয়া proxy তৈয়াৰ কৰক। ২ মিনিট, সদায় বিনামূলীয়া।',workerOk:"✅ Worker URL সেভ — AI সাজু!",vsTitle:"🎙️ ভইচ স্থিতি",vsMicY:"✅ মাইক: প্ৰস্তুত",vsMicN:"❌ মাইক: সমৰ্থিত নহয়",vsSpkY:"✅ স্পীকাৰ: প্ৰস্তুত",vsSpkN:"❌ স্পীকাৰ: সমৰ্থিত নহয়",vsWarn:"⚠️ Chrome বা Edge ব্যৱহাৰ কৰক।",lblLoc:"📍 আপোনাৰ অৱস্থান",locPh:"ৰাজ্য / জিলা",lblCrop:"🌱 আপোনাৰ শস্য বাছক",startReady:"🚀 চ্যাট আৰম্ভ কৰক",startWait:"অনুগ্ৰহ কৰি শস্য বাছক",voiceLbl:"ভইচ",stop:"বন্ধ",newSess:"✕ নতুন",listenHint:"শুনি আছো… কথা কওক",inputPh:"আপোনাৰ প্ৰশ্ন টাইপ কৰক…",quickQ:["সৰ্বোত্তম সাৰ?","কীট নিয়ন্ত্ৰণ","জলসিঞ্চন","বজাৰ মূল্য","চৰকাৰী আঁচনি"],greet:(c,l)=>`নমস্কাৰ কৃষক ভাই! 🌿 মই কিছান সাথী। <b>${c}</b>${l?", <b>"+l+"</b>ত":""} শস্য। যিকোনো প্ৰশ্ন কৰক!`},
+};
+
+const CROPS=[
+  {e:"🌾",n:"Wheat"},{e:"🌾",n:"Rice"},{e:"🌽",n:"Maize"},{e:"🫘",n:"Soybean"},
+  {e:"🥜",n:"Groundnut"},{e:"🌱",n:"Cotton"},{e:"🧅",n:"Onion"},{e:"🍅",n:"Tomato"},
+  {e:"🥔",n:"Potato"},{e:"🌿",n:"Sugarcane"},{e:"🫛",n:"Chickpea"},{e:"🫚",n:"Mustard"},
+];
+
+const SYS=`You are KisanSathi (किसान साथी), an expert AI agricultural assistant for Indian farmers.
+EXPERTISE: All Indian crops (Kharif/Rabi/Zaid), state-wise soil & climate, crop diseases, fertilizers (NPK/DAP/Urea/Vermicompost), irrigation, Govt schemes (PM-KISAN/PMFBY/MSP/e-NAM/Soil Health Card), mandi rates, IPM pest management, organic farming.
+LANGUAGE: Respond ENTIRELY in the farmer's selected language using its native script. English only for untranslatable technical terms.
+FORMAT: Under 130 words. Natural flowing sentences. Warm and practical, easy to listen to.
+TONE: Warm, respectful, simple. Address as local equivalent of "Kisaan Bhai". Be specific and actionable.`;
+
+const S={lang:"en",crop:null,loc:"",msgs:[],autoSpeak:true,listening:false,speaking:false,hasStt:false,hasTts:false,rec:null};
+const $=id=>document.getElementById(id);
+const L=()=>T[S.lang];
+
+window.addEventListener("DOMContentLoaded",()=>{
+  S.hasStt=!!(window.SpeechRecognition||window.webkitSpeechRecognition);
+  S.hasTts=!!window.speechSynthesis;
+  if(S.hasTts){speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=()=>speechSynthesis.getVoices();}
+  buildLangMenu();buildCrops();applyLang();
+  $("loc-inp").addEventListener("input",e=>S.loc=e.target.value);
+  $("txt").addEventListener("input",syncSend);
+  document.addEventListener("click",e=>{if(!e.target.closest(".lang-wrap"))$("lang-menu").classList.remove("open");});
+});
+
+
+
+function buildLangMenu(){
+  $("lang-menu").innerHTML=Object.entries(T).map(([k,v])=>
+    `<button id="lb-${k}" class="${k===S.lang?"active":""}" onclick="setLang('${k}')">${v.label}</button>`
+  ).join("");
+}
+function toggleLang(e){e.stopPropagation();$("lang-menu").classList.toggle("open");}
+function setLang(code){
+  S.lang=code;stopSpeak();if(S.listening)stopListen();
+  $("lang-menu").classList.remove("open");
+  document.querySelectorAll("#lang-menu button").forEach(b=>b.classList.remove("active"));
+  $("lb-"+code)?.classList.add("active");
+  applyLang();$("tb-lang").textContent=L().label;
+}
+function applyLang(){
+  const l=L();document.documentElement.lang=l.bcp;
+  $("hdr-sub").textContent=l.hdrSub;$("cur-lang").textContent=l.label;
+  $("hero-title").textContent=l.heroTitle;$("hero-sub").textContent=l.heroSub;
+  $("vs-title").textContent=l.vsTitle;updateVoiceStatus();
+  $("lbl-loc").textContent=l.lblLoc;$("loc-inp").placeholder=l.locPh;
+  $("lbl-crop").textContent=l.lblCrop;
+  $("voice-lbl").textContent=l.voiceLbl;
+  $("lbl-stop").textContent=l.stop;$("lbl-new").textContent=l.newSess;
+  $("txt").placeholder=S.listening?l.listenHint:l.inputPh;
+  updateStartBtn();buildQuickBtns();
+}
+function updateVoiceStatus(){
+  const l=L();
+  const m=$("vs-mic"),s=$("vs-spk"),w=$("vs-warn");
+  m.textContent=S.hasStt?l.vsMicY:l.vsMicN;m.className="vb-item "+(S.hasStt?"vb-ok":"vb-bad");
+  s.textContent=S.hasTts?l.vsSpkY:l.vsSpkN;s.className="vb-item "+(S.hasTts?"vb-ok":"vb-bad");
+  if(!S.hasStt){w.textContent=l.vsWarn;w.style.display="block";}else{w.style.display="none";}
+}
+function buildCrops(){
+  $("crop-grid").innerHTML=CROPS.map(c=>
+    `<button class="crop-btn${S.crop===c.n?" sel":""}" id="cb-${c.n}" onclick="pickCrop('${c.n}')">
+      <span class="ce">${c.e}</span>${c.n}</button>`).join("");
+}
+function pickCrop(n){
+  S.crop=n;document.querySelectorAll(".crop-btn").forEach(b=>b.classList.remove("sel"));
+  $("cb-"+n)?.classList.add("sel");updateStartBtn();
+}
+function updateStartBtn(){
+  const l=L(),c=CROPS.find(x=>x.n===S.crop),ready=!!S.crop;
+  const sb=$("start-btn");sb.disabled=!ready;sb.className="start-btn"+(ready?" ready":"");
+  $("start-lbl").textContent=ready?`${l.startReady} — ${c?.e} ${S.crop}`:l.startWait;
+}
+function showScreen(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));$(id).classList.add("active");}
+function startChat(){
+  if(!S.crop)return;
+  S.loc=$("loc-inp").value.trim();S.msgs=[];
+  const c=CROPS.find(x=>x.n===S.crop);
+  $("tb-emoji").textContent=c?.e||"";$("tb-name").textContent=S.crop;
+  $("tb-loc").textContent=S.loc?"📍 "+S.loc:"";$("tb-lang").textContent=L().label;
+  showScreen("chat");$("messages").innerHTML="";
+  const greet=L().greet(S.crop,S.loc);
+  addMsg("bot",greet);if(S.autoSpeak)speak(greet.replace(/<[^>]+>/g,""));
+  setTimeout(()=>$("txt").focus(),150);
+}
+function resetApp(){
+  stopSpeak();stopListen();S.crop=null;S.msgs=[];S.loc="";
+  $("loc-inp").value="";buildCrops();updateStartBtn();showScreen("setup");
+}
+function addMsg(role,text){
+  S.msgs.push({role:role==="bot"?"assistant":"user",content:text.replace(/<[^>]+>/g,"")});
+  const box=$("messages"),isBot=role==="bot",row=document.createElement("div");
+  row.className="mrow "+role;
+  row.innerHTML=isBot
+    ?`<div class="av bot">🌿</div><div class="bwrap"><div class="bubble bot">${text}</div>${S.hasTts?`<button class="replay-btn" onclick='speak(${JSON.stringify(text.replace(/<[^>]+>/g,""))})'>🔊</button>`:""}</div>`
+    :`<div class="bwrap"><div class="bubble user">${text}</div></div><div class="av user">👨‍🌾</div>`;
+  box.appendChild(row);box.scrollTop=box.scrollHeight;
+}
+function showTyping(){
+  const el=document.createElement("div");el.className="typing-row";el.id="typing";
+  el.innerHTML=`<div class="av bot">🌿</div><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`;
+  $("messages").appendChild(el);$("messages").scrollTop=$("messages").scrollHeight;
+}
+function hideTyping(){const e=$("typing");if(e)e.remove();}
+function md(t){return(t||"").replace(/\*\*(.*?)\*\*/g,"<strong>$1</strong>").replace(/\*(.*?)\*/g,"<em>$1</em>").replace(/\n/g,"<br/>");}
+
+async function doSend(override){
+  const inp=$("txt"),text=(override||inp.value).trim();
+  if(!text)return;
+  inp.value="";syncSend();stopListen();hideErr();
+  addMsg("user",text);showTyping();
+  const l=L();
+  const sys=`${SYS}\nSESSION:\n- Language: ${l.label} (${l.bcp}) — RESPOND ONLY IN THIS LANGUAGE\n- Crop: ${S.crop}\n- Location: ${S.loc||"Not specified"}`;
+  const hist=S.msgs.map(m=>({role:m.role,content:m.content}));
+  try{
+    const r=await fetch("/api/chat",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1024,system:sys,messages:hist})
+    });
+    const data=await r.json();
+    if(data.error)throw new Error(data.error.message);
+    const raw=data.content?.map(b=>b.text||"").join("\n")||"Sorry, no response.";
+    hideTyping();addMsg("bot",md(raw));if(S.autoSpeak)speak(raw);
+  }catch(e){
+    hideTyping();
+    showErr(e.message.includes("Failed to fetch")?"⚠️ Connection error. Check your internet.":"⚠️ "+e.message);
+  }
+}
+function sendQuick(q){doSend(q);}
+function onKey(e){if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();doSend();}}
+function syncSend(){const v=$("txt").value.trim(),b=$("send-btn");b.disabled=!v;b.className="icon-btn send-btn"+(v?" go":"");}
+function buildQuickBtns(){$("quick-row").innerHTML=L().quickQ.map(q=>`<button class="qbtn" onclick="sendQuick(${JSON.stringify(q)})">${q}</button>`).join("");}
+function toggleMic(){S.listening?stopListen():startListen();}
+function startListen(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){showErr("Speech recognition not supported. Use Chrome or Edge.");return;}
+  stopSpeak();hideErr();
+  const rec=new SR();rec.lang=L().bcp;rec.interimResults=true;rec.continuous=false;S.rec=rec;
+  rec.onstart=()=>{S.listening=true;$("mic-btn").classList.add("on");$("mic-btn").textContent="⏹";$("input-row").classList.add("on");$("listen-bar").style.display="flex";$("live-txt").textContent=L().listenHint;$("txt").placeholder=L().listenHint;};
+  rec.onresult=e=>{let f="",i="";for(let x=e.resultIndex;x<e.results.length;x++){const t=e.results[x][0].transcript;if(e.results[x].isFinal)f+=t;else i+=t;}const h=f||i;$("live-txt").textContent=`"${h}"`;if(f){$("txt").value=f;syncSend();}};
+  rec.onerror=e=>{stopListen();const m={"not-allowed":"🔒 Mic blocked — tap lock icon → Allow Microphone.","no-speech":"No speech detected.","network":"Network error.","aborted":""};if(m[e.error])showErr(m[e.error]);};
+  rec.onend=()=>stopListen();
+  try{rec.start();}catch(e){showErr("Mic error: "+e.message);}
+}
+function stopListen(){
+  if(S.rec){try{S.rec.stop();}catch(e){}S.rec=null;}
+  S.listening=false;$("mic-btn").classList.remove("on");$("mic-btn").textContent="🎙️";
+  $("input-row").classList.remove("on");$("listen-bar").style.display="none";
+  $("txt").placeholder=L().inputPh;
+}
+function speak(text){
+  if(!S.hasTts||!S.autoSpeak)return;speechSynthesis.cancel();
+  const clean=text.replace(/<[^>]+>/g,"").replace(/\*\*(.*?)\*\*/g,"$1").replace(/\*(.*?)\*/g,"$1").replace(/\n+/g,". ").replace(/\s{2,}/g," ").trim();
+  const u=new SpeechSynthesisUtterance(clean);u.lang=L().bcp;u.rate=0.88;u.pitch=1.0;u.volume=1.0;
+  const vs=speechSynthesis.getVoices();
+  const best=vs.find(v=>v.lang===L().bcp)||vs.find(v=>v.lang.startsWith(L().bcp.split("-")[0]));
+  if(best)u.voice=best;
+  u.onstart=()=>{S.speaking=true;$("stop-btn").style.display="flex";};
+  u.onend=()=>{S.speaking=false;$("stop-btn").style.display="none";};
+  u.onerror=e=>{if(e.error!=="interrupted"){S.speaking=false;$("stop-btn").style.display="none";}};
+  if(speechSynthesis.paused)speechSynthesis.resume();speechSynthesis.speak(u);
+}
+function stopSpeak(){if(S.hasTts)speechSynthesis.cancel();S.speaking=false;$("stop-btn").style.display="none";}
+function toggleVoice(){S.autoSpeak=!S.autoSpeak;const b=$("voice-toggle");b.className="pill"+(S.autoSpeak?"":" muted");b.innerHTML=(S.autoSpeak?"🔊 ":"🔇 ")+'<span id="voice-lbl">'+L().voiceLbl+"</span>";if(!S.autoSpeak)stopSpeak();}
+function showErr(m){$("err-bar").style.display="flex";$("err-msg").textContent=m;}
+function hideErr(){$("err-bar").style.display="none";}
+</script>
+</body>
+</html>
