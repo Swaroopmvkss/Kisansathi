@@ -9,7 +9,7 @@ export default async function handler(req, res) {
   const API_KEY = process.env.GEMINI_API_KEY
   if (!API_KEY) {
     res.setHeader('Access-Control-Allow-Origin', '*')
-    return res.status(500).json({ error: { message: 'API key not configured.' } })
+    return res.status(500).json({ error: { message: 'GEMINI_API_KEY not configured.' } })
   }
 
   try {
@@ -32,7 +32,17 @@ export default async function handler(req, res) {
     )
 
     const data = await response.json()
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Sorry, no response.'
+
+    if (data.error) {
+      res.setHeader('Access-Control-Allow-Origin', '*')
+      return res.status(response.status).json({ error: { message: 'Gemini error: ' + data.error.message } })
+    }
+
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text
+    if (!text) {
+      res.setHeader('Access-Control-Allow-Origin', '*')
+      return res.status(200).json({ error: { message: 'Gemini returned empty response: ' + JSON.stringify(data).slice(0, 200) } })
+    }
 
     res.setHeader('Access-Control-Allow-Origin', '*')
     return res.status(200).json({ content: [{ text }] })
