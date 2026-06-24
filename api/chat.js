@@ -6,44 +6,40 @@ export default async function handler(req, res) {
     return res.status(204).end()
   }
 
-  const API_KEY = process.env.GEMINI_API_KEY
+  const API_KEY = process.env.GROQ_API_KEY
   if (!API_KEY) {
     res.setHeader('Access-Control-Allow-Origin', '*')
-    return res.status(500).json({ error: { message: 'GEMINI_API_KEY not configured.' } })
+    return res.status(500).json({ error: { message: 'GROQ_API_KEY not configured.' } })
   }
 
   try {
     const { system, messages } = req.body
-    const contents = messages.map(m => ({
-      role: m.role === 'assistant' ? 'model' : 'user',
-      parts: [{ text: m.content }]
-    }))
+    const groqMessages = [
+      { role: 'system', content: system },
+      ...messages.map(m => ({ role: m.role === 'assistant' ? 'assistant' : 'user', content: m.content }))
+    ]
 
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          system_instruction: { parts: [{ text: system }] },
-          contents,
-        }),
-      }
-    )
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        messages: groqMessages,
+        max_tokens: 1024,
+      }),
+    })
 
     const data = await response.json()
 
     if (data.error) {
       res.setHeader('Access-Control-Allow-Origin', '*')
-      return res.status(response.status).json({ error: { message: 'Gemini error: ' + data.error.message } })
+      return res.status(200).json({ error: { message: 'Groq error: ' + data.error.message } })
     }
 
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text
-    if (!text) {
-      res.setHeader('Access-Control-Allow-Origin', '*')
-      return res.status(200).json({ error: { message: 'Gemini returned empty response: ' + JSON.stringify(data).slice(0, 200) } })
-    }
-
+    const text = data.choices?.[0]?.message?.content || 'Sorry, no response.'
     res.setHeader('Access-Control-Allow-Origin', '*')
     return res.status(200).json({ content: [{ text }] })
   } catch (err) {
